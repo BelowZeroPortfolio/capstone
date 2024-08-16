@@ -83,7 +83,7 @@ include_once("connection/dbcon.php");
                 <span>Experience reliable, convenient transport and delivery with us. Join thousands of satisfied customers today.</span>
                 <div class="input-group">
                     <div class="input-container">
-                        <input type="text" class="form-controls" placeholder="Enter location">
+                        <input type="text" class="form-controls" placeholder="Enter street name or barangay">
                         <span class="locate-me"><i class='bx bx-target-lock'></i>Locate me</span>
                     </div>
                     <button class="btn-index" type="button">Search</button>

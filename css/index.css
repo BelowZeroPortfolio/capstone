@@ -24,8 +24,9 @@ body {
   background-color: #f8f9fa;
 }
 .containers {
-  margin-top: 50px;
+  background-color: #ff9548;
   height: 100vh;
+  margin-bottom: 50px;
 }
 .content {
   display: grid;
@@ -33,7 +34,7 @@ body {
   gap: 20px;
   max-width: 100%;
   width: 100%;
-  padding:10px 20px;
+  padding:50px 20px;
 }
 
 .col-left {
@@ -45,11 +46,14 @@ body {
 }
 
 .col-left h2 {
-  color: #000010;
+  color: #ffffff;
+  font-weight: 700;
   margin-bottom: 20px;
+
 }
 
 .col-left span {
+  color: #ffffff;
   margin-bottom: 30px;
 }
 
@@ -64,7 +68,7 @@ body {
 .buttons-index button {
   padding: 10px 20px;
   border: none;
-  background-color: #ff9548;
+  background-color: #d7d4d2;
   color: white;
   cursor: pointer;
   transition: 0.2s ease-in-out;
@@ -87,14 +91,10 @@ body {
 
 
 
-
-
-
-
-
 .input-group {
   display: flex;
   align-items: center;
+  background-color: #ffffff;
   padding: 10px;
   border-radius: 10px;
   box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
@@ -103,6 +103,9 @@ body {
 .input-container {
   position: relative;
   flex-grow: 1;
+}
+.input-container span{
+  color: #ff9548;
 }
 
 .form-controls {

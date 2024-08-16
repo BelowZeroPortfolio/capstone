@@ -98,143 +98,178 @@ include_once("../connection/dbcon.php");
 
             <div class="listing-section">
                 <h3>Restaurants</h3>
-                <div id="restaurantCarousel" class="carousel slide" data-bs-ride="carousel">
-                    <div class="carousel-inner">
-                        <div class="carousel-item active">
-                            <div class="d-flex justify-content-between">
-                                <!-- Restaurant 1 -->
-                                <div class="restaurant-item">
-                                    <div class="restaurant-item-left">
-                                        <img src="../css/shop-logo1.png" class="d-block w-100" alt="Shop logo 1">
-                                    </div>
-                                    <div class="restaurant-item-right">
-                                        <h4>Jollibee</h4>
-                                        <p>5 &#11088;</p>
-                                    </div>
-                                </div>
-                                <!-- Restaurant 2 -->
-                                <div class="restaurant-item">
-                                    <div class="restaurant-item-left">
-                                        <img src="../css/shop-logo1.png" class="d-block w-100" alt="Shop logo 1">
-                                    </div>
-                                    <div class="restaurant-item-right">
-                                        <h4>Jollibee</h4>
-                                        <p>5 &#11088;</p>
-                                    </div>
-                                </div>
-                                <!-- Restaurant 3 -->
-                                <div class="restaurant-item">
-                                    <div class="restaurant-item-left">
-                                        <img src="../css/shop-logo1.png" class="d-block w-100" alt="Shop logo 1">
-                                    </div>
-                                    <div class="restaurant-item-right">
-                                        <h4>Jollibee</h4>
-                                        <p>5 &#11088;</p>
-                                    </div>
-                                </div>
-                                <!-- Restaurant 4 -->
-                                <div class="restaurant-item">
-                                    <div class="restaurant-item-left">
-                                        <img src="../css/shop-logo1.png" class="d-block w-100" alt="Shop logo 1">
-                                    </div>
-                                    <div class="restaurant-item-right">
-                                        <h4>Jollibee</h4>
-                                        <p>5 &#11088;</p>
-                                    </div>
-                                </div>
-                                <!-- Restaurant 5 -->
-                                <div class="restaurant-item">
-                                    <div class="restaurant-item-left">
-                                        <img src="../css/shop-logo1.png" class="d-block w-100" alt="Shop logo 1">
-                                    </div>
-                                    <div class="restaurant-item-right">
-                                        <h4>Jollibee</h4>
-                                        <p>5 &#11088;</p>
-                                    </div>
-                                </div>
-                            </div>
+                <div class="restaurant-listing">
+                    <!-- Repeat this block for each restaurant -->
+                    <div class="restaurant-item">
+                        <div class="restaurant-item-left">
+                            <img src="../css/shop-logo1.png" alt="Shop logo 1">
                         </div>
-                        <div class="carousel-item">
-                            <div class="d-flex justify-content-between">
-                                <!-- Add the next batch of 5 restaurant items here -->
-                                <!-- Restaurant 6 -->
-                                <div class="restaurant-item">
-                                    <div class="restaurant-item-left">
-                                        <img src="../css/shop-logo1.png" class="d-block w-100" alt="Shop logo 1">
-                                    </div>
-                                    <div class="restaurant-item-right">
-                                        <h4>Jollibee</h4>
-                                        <p>5 &#11088;</p>
-                                    </div>
-                                </div>
-                                <div class="restaurant-item">
-                                    <div class="restaurant-item-left">
-                                        <img src="../css/shop-logo1.png" class="d-block w-100" alt="Shop logo 1">
-                                    </div>
-                                    <div class="restaurant-item-right">
-                                        <h4>Jollibee</h4>
-                                        <p>5 &#11088;</p>
-                                    </div>
-                                </div>
-                                <div class="restaurant-item">
-                                    <div class="restaurant-item-left">
-                                        <img src="../css/shop-logo1.png" class="d-block w-100" alt="Shop logo 1">
-                                    </div>
-                                    <div class="restaurant-item-right">
-                                        <h4>Jollibee</h4>
-                                        <p>5 &#11088;</p>
-                                    </div>
-                                </div>
-                                <div class="restaurant-item">
-                                    <div class="restaurant-item-left">
-                                        <img src="../css/shop-logo1.png" class="d-block w-100" alt="Shop logo 1">
-                                    </div>
-                                    <div class="restaurant-item-right">
-                                        <h4>Jollibee</h4>
-                                        <p>5 &#11088;</p>
-                                    </div>
-                                </div>
-                                <div class="restaurant-item">
-                                    <div class="restaurant-item-left">
-                                        <img src="../css/shop-logo1.png" class="d-block w-100" alt="Shop logo 1">
-                                    </div>
-                                    <div class="restaurant-item-right">
-                                        <h4>Jollibee</h4>
-                                        <p>5 &#11088;</p>
-                                    </div>
-                                </div>
-                                <div class="restaurant-item">
-                                    <div class="restaurant-item-left">
-                                        <img src="../css/shop-logo1.png" class="d-block w-100" alt="Shop logo 1">
-                                    </div>
-                                    <div class="restaurant-item-right">
-                                        <h4>Jollibee</h4>
-                                        <p>5 &#11088;</p>
-                                    </div>
-                                </div>
-                                <!-- Repeat for Restaurants 7 to 10 -->
-                                <!-- ... -->
-                            </div>
+                        <div class="restaurant-item-right">
+                            <h4>Jollibee</h4>
+                            <p>5 &#11088; </p>
                         </div>
-                        <!-- Add more carousel-item blocks for additional batches of restaurants -->
                     </div>
-                    <button class="carousel-control-prev" type="button" data-bs-target="#restaurantCarousel" data-bs-slide="prev">
-                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Previous</span>
-                    </button>
-                    <button class="carousel-control-next" type="button" data-bs-target="#restaurantCarousel" data-bs-slide="next">
-                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Next</span>
-                    </button>
+                    <div class="restaurant-item">
+                        <div class="restaurant-item-left">
+                            <img src="../css/shop-logo1.png" alt="Shop logo 1">
+                        </div>
+                        <div class="restaurant-item-right">
+                            <h4>Jollibee</h4>
+                            <p>5 &#11088; </p>
+                        </div>
+                    </div>
+                    <div class="restaurant-item">
+                        <div class="restaurant-item-left">
+                            <img src="../css/shop-logo1.png" alt="Shop logo 1">
+                        </div>
+                        <div class="restaurant-item-right">
+                            <h4>Jollibee</h4>
+                            <p>5 &#11088; </p>
+                        </div>
+                    </div>
+                    <div class="restaurant-item">
+                        <div class="restaurant-item-left">
+                            <img src="../css/shop-logo1.png" alt="Shop logo 1">
+                        </div>
+                        <div class="restaurant-item-right">
+                            <h4>Jollibee</h4>
+                            <p>5 &#11088; </p>
+                        </div>
+                    </div>
+                    <div class="restaurant-item">
+                        <div class="restaurant-item-left">
+                            <img src="../css/shop-logo1.png" alt="Shop logo 1">
+                        </div>
+                        <div class="restaurant-item-right">
+                            <h4>Jollibee</h4>
+                            <p>5 &#11088; </p>
+                        </div>
+                    </div>
+                    <div class="restaurant-item">
+                        <div class="restaurant-item-left">
+                            <img src="../css/shop-logo1.png" alt="Shop logo 1">
+                        </div>
+                        <div class="restaurant-item-right">
+                            <h4>Jollibee</h4>
+                            <p>5 &#11088; </p>
+                        </div>
+                    </div>
+
                 </div>
 
-
                 <h3>Products</h3>
-                <div class="product-listing">
-                    <!-- Repeat this block for each product -->
-                    <div class="product-item">
-                        <h4>Product Name</h4>
-                        <p>Product Description</p>
+                <div class="row row-cols-2 row-cols-xl-4 row-cols-sm-2 g-4">
+                    <div class="col">
+                        <div class="card pt-3">
+                            <div class="d-flex justify-content-center">
+                                <img src="../css/box1.png" class="card-img-top" alt="...">
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">item 1</h5>
+                                <div class="d-flex justify-content-between">
+                                    <p class="card-text">₱100.00</p>
+                                    <span>5 &#11088;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card pt-3">
+                            <div class="d-flex justify-content-center">
+                                <img src="../css/box1.png" class="card-img-top" alt="...">
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">item 1</h5>
+                                <div class="d-flex justify-content-between">
+                                    <p class="card-text">₱100.00</p>
+                                    <span>5 &#11088;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card pt-3">
+                            <div class="d-flex justify-content-center">
+                                <img src="../css/box1.png" class="card-img-top" alt="...">
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">item 1</h5>
+                                <div class="d-flex justify-content-between">
+                                    <p class="card-text">₱100.00</p>
+                                    <span>5 &#11088;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card pt-3">
+                            <div class="d-flex justify-content-center">
+                                <img src="../css/box1.png" class="card-img-top" alt="...">
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">item 1</h5>
+                                <div class="d-flex justify-content-between">
+                                    <p class="card-text">₱100.00</p>
+                                    <span>5 &#11088;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card pt-3">
+                            <div class="d-flex justify-content-center">
+                                <img src="../css/box1.png" class="card-img-top" alt="...">
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">item 1</h5>
+                                <div class="d-flex justify-content-between">
+                                    <p class="card-text">₱100.00</p>
+                                    <span>5 &#11088;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card pt-3">
+                            <div class="d-flex justify-content-center">
+                                <img src="../css/box1.png" class="card-img-top" alt="...">
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">item 1</h5>
+                                <div class="d-flex justify-content-between">
+                                    <p class="card-text">₱100.00</p>
+                                    <span>5 &#11088;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card pt-3">
+                            <div class="d-flex justify-content-center">
+                                <img src="../css/box1.png" class="card-img-top" alt="...">
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">item 1</h5>
+                                <div class="d-flex justify-content-between">
+                                    <p class="card-text">₱100.00</p>
+                                    <span>5 &#11088;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card pt-3">
+                            <div class="d-flex justify-content-center">
+                                <img src="../css/box1.png" class="card-img-top" alt="...">
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">item 1</h5>
+                                <div class="d-flex justify-content-between">
+                                    <p class="card-text">₱100.00</p>
+                                    <span>5 &#11088;</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
