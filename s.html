@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .container {
+            width: 100%;
+            overflow: hidden;
+            border: 1px solid #ccc;
+            position: relative;
+        }
+
+        .shop-slider {
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .shop-items {
+            display: flex;
+            overflow: hidden;
+            width: 90%;
+        }
+
+        .shop-items-container {
+            display: flex;
+            transition: transform 0.3s ease-in-out;
+            width: 100%;
+        }
+
+        .shop-item {
+            flex: 0 0 20%; /* 5 items per row */
+            box-sizing: border-box;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            margin-right: 10px;
+        }
+
+        .prev-btn,
+        .next-btn {
+            background-color: #ff5e14;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            z-index: 1;
+            position: absolute;
+        }
+
+        .prev-btn {
+            left: 0;
+        }
+
+        .next-btn {
+            right: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="shop-slider">
+            <button class="prev-btn">Prev</button>
+            <div class="shop-items">
+                <div class="shop-items-container">
+                    <!-- Repeat this div for each batch of items -->
+                    <div class="shop-item">Item 1</div>
+                    <div class="shop-item">Item 2</div>
+                    <div class="shop-item">Item 3</div>
+                    <div class="shop-item">Item 4</div>
+                    <div class="shop-item">Item 5</div>
+                    <div class="shop-item">Item 6</div>
+                    <div class="shop-item">Item 7</div>
+                    <div class="shop-item">Item 8</div>
+                    <div class="shop-item">Item 9</div>
+                    <div class="shop-item">Item 10</div>
+                    <!-- Add more items here as needed -->
+                </div>
+            </div>
+            <button class="next-btn">Next</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const prevBtn = document.querySelector('.prev-btn');
+            const nextBtn = document.querySelector('.next-btn');
+            const container = document.querySelector('.shop-items-container');
+            const itemWidth = document.querySelector('.shop-item').offsetWidth + 10; // including margin-right
+            const itemsPerPage = 5;
+            let index = 0;
+
+            function updateSlider() {
+                container.style.transform = `translateX(-${index * itemsPerPage * itemWidth}px)`;
+            }
+
+            prevBtn.addEventListener('click', () => {
+                index = Math.max(index - 1, 0);
+                updateSlider();
+            });
+
+            nextBtn.addEventListener('click', () => {
+                const totalItems = container.children.length;
+                const maxIndex = Math.ceil(totalItems / itemsPerPage) - 1;
+                index = Math.min(index + 1, maxIndex);
+                updateSlider();
+            });
+        });
+    </script>
+</body>
+</html>

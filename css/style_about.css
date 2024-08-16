@@ -1,0 +1,366 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Poppins", sans-serif;
+  line-height: 1.6;
+}
+
+/* Header Styles */
+.header {
+  width: 100%;
+  margin: 0;
+}
+
+.collapse li a {
+  color: #ffffff;
+  font-size: 1rem;
+}
+
+.about-container {
+  width: 100%;
+  background-image: url(../css/bg.svg);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  height: 80vh;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  padding: 0 15px;
+}
+
+.about-content h1 {
+  font-weight: 700;
+  font-size: 2rem;
+  color: #ffffff;
+  padding: 0px 10%;
+}
+
+.about-content p {
+  font-size: 1rem;
+  color: #ffffff;
+}
+
+/* About Us Details Section */
+.container-about-us {
+  margin-top: 50px;
+}
+.content-about-us{
+  margin-top: 50px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  padding: 0 50px;
+}
+
+.col-right img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+.col-right{
+  display: flex;
+  justify-content: end;
+  align-items: center;
+}
+
+.container-about-us h1 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+.container-about-us strong{
+  color: #FF9548;
+}
+
+.col-left p {
+  font-size: 1rem;
+  text-align: justify;
+  color: #333;
+}
+
+/* Team Section */
+.team-container {
+  width: 100%;
+  margin: 50px auto;
+  padding: 0 15px;
+  max-width: 1200px;
+}
+
+.team-section {
+  margin-top: 50px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Dynamic columns */
+  gap: 20px;
+}
+
+.team-member {
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+}
+
+.team-member img {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  margin-bottom: 15px;
+}
+
+.team-member h4 {
+  margin-bottom: 10px;
+  font-size: 1.2rem;
+}
+
+.team-member h5 {
+  margin-bottom: 15px;
+  color: #777;
+  font-size: 0.9rem;
+}
+
+.team-member p {
+  font-size: 0.8rem;
+  line-height: 1.6;
+}
+
+/* .copyright-area {
+  background: #202020;
+  padding: 25px 0;
+}
+.copyright-text p {
+  margin: 0;
+  font-size: 12px;
+  color: #878787;
+}
+.copyright-text p a {
+  color: #ff5e14;
+} */
+ul {
+  margin: 0px;
+  padding: 0px;
+}
+.footer-section {
+  background: #151414;
+  position: relative;
+}
+.footer-cta {
+  border-bottom: 1px solid #373636;
+}
+.single-cta i {
+  color: #ff5e14;
+  font-size: 20px;
+  float: left;
+  margin-top: 8px;
+}
+.cta-text {
+  padding-left: 15px;
+  display: inline-block;
+}
+.cta-text h4 {
+  color: #fff;
+  font-size: 12px;
+  font-weight: 400;
+  margin-bottom: 2px;
+}
+.cta-text span {
+  color: #757575;
+  font-size: 15px;
+}
+.footer-content {
+  position: relative;
+  z-index: 2;
+}
+.footer-pattern img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 330px;
+  background-size: cover;
+  background-position: 100% 100%;
+}
+.footer-logo {
+  margin-bottom: 30px;
+}
+.footer-logo img {
+  max-width: 200px;
+}
+.footer-text p {
+  margin-bottom: 14px;
+  font-size: 14px;
+  color: #7e7e7e;
+  line-height: 28px;
+}
+.footer-social-icon span {
+  color: #fff;
+  display: block;
+  font-size: 20px;
+  font-weight: 700;
+  font-family: "Poppins", sans-serif;
+  margin-bottom: 20px;
+}
+.footer-social-icon a {
+  color: #fff;
+  font-size: 16px;
+  margin-right: 15px;
+}
+.footer-social-icon i {
+  height: 40px;
+  width: 40px;
+  text-align: center;
+  line-height: 38px;
+  border-radius: 50%;
+}
+.facebook-bg {
+  background: #3b5998;
+}
+.twitter-bg {
+  background: #55acee;
+}
+.google-bg {
+  background: #dd4b39;
+}
+.footer-widget-heading h3 {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 40px;
+  position: relative;
+}
+.footer-widget-heading h3::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -15px;
+  height: 2px;
+  width: 50px;
+  background: #ff5e14;
+}
+.footer-widget ul li {
+  float: left;
+  width: 50%;
+  margin-bottom: 12px;
+}
+.footer-widget ul li a:hover {
+  color: #ff5e14;
+}
+.footer-widget ul li a {
+  font-size: 14px;
+  color: #878787;
+  text-transform: capitalize;
+}
+.subscribe-form {
+  position: relative;
+  overflow: hidden;
+}
+.subscribe-form input {
+  width: 100%;
+  padding: 14px 28px;
+  background: #2e2e2e;
+  border: 1px solid #2e2e2e;
+  color: #fff;
+}
+.subscribe-form button {
+  position: absolute;
+  right: 0;
+  background: #ff5e14;
+  padding: 13px 20px;
+  border: 1px solid #ff5e14;
+  top: 0;
+}
+.subscribe-form button i {
+  color: #fff;
+  font-size: 22px;
+  transform: rotate(-6deg);
+}
+.copyright-area {
+  background: #202020;
+  padding: 25px 0;
+}
+.copyright-text p {
+  margin: 0;
+  font-size: 12px;
+  color: #878787;
+}
+.copyright-text p a {
+  color: #ff5e14;
+}
+.footer-menu li {
+  display: inline-block;
+  margin-left: 20px;
+}
+.footer-menu li:hover a {
+  color: #ff5e14;
+}
+.footer-menu li a {
+  font-size: 12px;
+  color: #878787;
+}
+/* Media Queries for Responsiveness */
+@media (max-width: 768px) {
+  .about-container {
+    height: 50vh;
+    padding: 20px;
+  }
+
+  .about-content h1 {
+    font-size: 1.5rem;
+  }
+
+  .about-content p {
+    font-size: 0.9rem;
+  }
+
+  .content-about-us {
+    grid-template-columns: 1fr; /* Stack columns on smaller screens */
+    padding: 10px;
+  }
+
+  .col-left p {
+    font-size: 0.8rem;
+  }
+  .col-right img{
+    width: 100%;
+  }
+
+  .team-container {
+    padding: 10px;
+  }
+
+  .team-member {
+    padding: 15px;
+  }
+}
+
+@media (max-width: 576px) {
+  .about-content h1 {
+    font-size: 1.2rem;
+  }
+
+  .about-content p {
+    font-size: 0.8rem;
+  }
+
+  .team-member img {
+    width: 50px;
+    height: 50px;
+  }
+
+  .team-member h4 {
+    font-size: 1rem;
+  }
+
+  .team-member h5 {
+    font-size: 0.8rem;
+  }
+
+  .team-member p {
+    font-size: 0.7rem;
+  }
+}
