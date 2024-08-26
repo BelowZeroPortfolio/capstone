@@ -9,12 +9,17 @@
 body {
   font-family: "Poppins", sans-serif;
 }
-
+.profile-btn{
+  border: none;
+}
 .header {
   width: 100%;
   margin: 0;
 }
-
+.nav-item.active{
+  background-color: #ff9548;
+  color: #ffffff;
+}
 .collapse li a {
   color: #ffffff;
   font-size: 1rem;

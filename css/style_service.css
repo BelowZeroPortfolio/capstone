@@ -13,6 +13,13 @@ body {
   color: #ffffff;
   font-size: 1rem;
 }
+.profile-btn{
+  border: none;
+}
+.nav-item.active{
+  background-color: #ff9548;
+  color: #ffffff;
+}
 .header {
   width: 100%;
   margin: 0;

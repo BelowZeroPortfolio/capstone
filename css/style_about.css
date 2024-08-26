@@ -10,11 +10,17 @@ body {
   font-family: "Poppins", sans-serif;
   line-height: 1.6;
 }
-
+.profile-btn{
+  border: none;
+}
 /* Header Styles */
 .header {
   width: 100%;
   margin: 0;
+}
+.nav-item.active{
+  background-color: #ff9548;
+  color: #ffffff;
 }
 
 .collapse li a {
@@ -24,7 +30,7 @@ body {
 
 .about-container {
   width: 100%;
-  background-image: url(../css/bg.svg);
+  background-image: url(../image/bg.svg);
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
@@ -87,7 +93,7 @@ body {
 /* Team Section */
 .team-container {
   width: 100%;
-  margin: 50px auto;
+  margin: 50px;
   padding: 0 15px;
   max-width: 1200px;
 }
@@ -95,13 +101,13 @@ body {
 .team-section {
   margin-top: 50px;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Dynamic columns */
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Dynamic columns */
   gap: 20px;
 }
 
 .team-member {
   background-color: #f9f9f9;
-  padding: 20px;
+  padding: 10px;
   border-radius: 8px;
   text-align: center;
   box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;

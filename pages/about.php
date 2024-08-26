@@ -1,5 +1,12 @@
 <?php
 include_once("../connection/dbcon.php");
+
+session_start();
+
+if (!isset($_SESSION['username'])) {
+    header("Location: ../index.php"); // Redirect to login or home page if not logged in
+    exit;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -21,24 +28,26 @@ include_once("../connection/dbcon.php");
     <div class="header">
         <header class="bg-dark text-white">
             <nav class="navbar navbar-expand-lg navbar-dark container">
-                <a class="navbar-brand" href="index.php">
-                    <img src="../css/logo.png" alt="Logo" class="logo" style="width: 150px;">
+                <a class="navbar-brand" href="home.php">
+                    <img src="../image/logo.png" alt="Logo" class="logo" style="width: 150px;">
                 </a>
                 <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav mx-auto">
-                        <li class="nav-item"><a class="nav-link" href="../index.php">Home</a></li>
+                        <li class="nav-item"><a class="nav-link" href="home.php">Home</a></li>
                         <li class="nav-item"><a class="nav-link" href="shop.php">Shop</a></li>
                         <li class="nav-item"><a class="nav-link" href="service.php">Services</a></li>
-                        <li class="nav-item"><a class="nav-link" href="about.php">About</a></li>
+                        <li class="nav-item  active" aria-current="page"><a class="nav-link" href="about.php">About</a></li>
                         <li class="nav-item"><a class="nav-link" href="contact.php">Contact</a></li>
                     </ul>
-                    <div class="d-flex flex-column flex-lg-row ms-lg-auto mt-2 mt-lg-0">
-                        <button class="btn btn-outline-light mb-2 mb-lg-0" id="create_account">Create Account</button>
-                        <button type="button" class="btn btn-outline-light" data-bs-toggle="modal" data-bs-target="#loginModal">
-                            Login
+                    <div class="d-flex flex-column flex-lg-row ms-lg-auto mt-2 mt-lg-0 gap-3">
+                        <button class="profile-btn bg-dark text-white" id="profileIcon" onclick="window.location.href='profile.php';">
+                            <i class='bx bx-user'></i> 
+                        </button>
+                        <button class="btn btn-outline-light" id="logoutButton" onclick="window.location.href='logout.php';">
+                            Logout
                         </button>
                     </div>
                 </div>
@@ -63,7 +72,7 @@ include_once("../connection/dbcon.php");
                 </p>
             </div>
             <div class="col-right">
-                <img src="../css/about-top.webp" alt="Image in About us">
+                <img src="../image/about-top.webp" alt="Image in About us">
             </div>
         </div>
     </div>
@@ -74,21 +83,21 @@ include_once("../connection/dbcon.php");
         <p>Meet the passionate and creative minds driving our vision forward, each bringing unique expertise and dedication to our mission.</p>
         <div class="team-section">
             <div class="team-member">
-                <img src="../css/team1.png" alt="team1 image">
+                <img src="../image/team1.png" alt="team1 image">
                 <h4>Carl Navid Cata-an</h4>
                 <h5>Team Leader</h5>
                 <p>drives our team with strategic vision and a commitment to excellence.</p>
             </div>
 
             <div class="team-member">
-                <img src="../css/team2.png" alt="team2 image">
+                <img src="../image/team2.png" alt="team2 image">
                 <h4>Niel Allen Osorio</h4>
                 <h5>UI/UX Designer</h5>
                 <p>Niel creates intuitive, user-friendly designs that stand out visually.</p>
             </div>
 
             <div class="team-member">
-                <img src="../css/team3.png" alt="team3 image">
+                <img src="../image/team3.png" alt="team3 image">
                 <h4>Darwin Demaclid</h4>
                 <h5>Front-End Developer</h5>
                 <p>Darwin ensures our designs function flawlessly with clean, responsive code.</p>
@@ -135,7 +144,7 @@ include_once("../connection/dbcon.php");
                     <div class="col-xl-4 col-lg-4 mb-50">
                         <div class="footer-widget">
                             <div class="footer-logo">
-                                <a href="index.html"><img src="../css/logo.png" class="img-fluid" alt="logo"></a>
+                                <a href="index.html"><img src="../image/logo.png" class="img-fluid" alt="logo"></a>
                             </div>
                             <div class="footer-text">
                                 <p>Connecting Community,<br>
