@@ -2,10 +2,11 @@
 $servername = "localhost";
 $username = "root";
 $password = "";
-$dbname = "bagoexpress";
+$dbname = "capstone";
 
-$con = new mysqli($servername, $username, $password, $dbname);
-if($con->connect_error){
-    echo "Cannot connect:" . $con->connect_error;
+$con = mysqli_connect($servername, $username, $password, $dbname);
+
+if (!$con) {
+    die("Connection failed: " . mysqli_connect_error());
 }
 ?>

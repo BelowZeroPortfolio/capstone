@@ -1,15 +1,14 @@
 <?php
 session_start();
 include_once("../connection/dbcon.php"); // Ensure this file exists and contains database connection logic
-
 // Check if the user is logged in and has admin privileges
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-    header('Location: login.php');
+if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
+    header('Location: ../index.php');
     exit();
 }
 
 // Fetch users from the database with role 'user'
-$query = "SELECT id, username, email, role FROM user WHERE role = 'user'";
+$query = "SELECT user_id, username, email, user_type FROM users WHERE user_type = 'customer'";
 $result = mysqli_query($con, $query);
 $users = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
@@ -18,15 +17,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $user_id = $_POST['user_id'];
     $username = $_POST['username'];
     $email = $_POST['email'];
-    $role = $_POST['role'];
+    $user_type = $_POST['user_type'];
 
-    $update_query = "UPDATE user SET username = ?, email = ?, role = ? WHERE id = ?";
+    $update_query = "UPDATE users SET username = ?, email = ?, user_type = ? WHERE id = ?";
     $stmt = mysqli_prepare($connection, $update_query);
-    mysqli_stmt_bind_param($stmt, "sssi", $username, $email, $role, $user_id);
+    mysqli_stmt_bind_param($stmt, "sssi", $username, $email, $user_type, $user_id);
     mysqli_stmt_execute($stmt);
 
     // Redirect to refresh the page
-    header('Location: admin-home.php');
+    header('Location: admin-dashboard.php');
     exit();
 }
 ?>
@@ -46,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             --sidebar-hover: #34495e;
         }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Verdana, sans-serif;
         }
         .sidebar {
             background-color: var(--sidebar-bg);
@@ -176,7 +175,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <a href="admin-user.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'admin-user.php' ? 'active' : ''; ?>">
                 <i class="fas fa-users"></i> Users
             </a>
-            <a href="admin-report.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'admin-orders.php' ? 'active' : ''; ?>">
+            <a href="admin-report.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'admin-report.php' ? 'active' : ''; ?>">
                 <i class="fas fa-shopping-cart"></i> Report
             </a>
         </div>

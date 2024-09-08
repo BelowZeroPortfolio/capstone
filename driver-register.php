@@ -16,7 +16,7 @@ function sendJsonResponse($data)
     exit;
 }
 
-set_error_handler(function($errno, $errstr, $errfile, $errline) {
+set_error_handler(function ($errno, $errstr, $errfile, $errline) {
     throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
 });
 
@@ -25,7 +25,7 @@ try {
         $response = ['success' => false, 'errors' => []];
 
         // Collect and sanitize form data
-        $fields = ['first_name', 'last_name', 'username', 'email', 'birthday', 'password', 'confirm-password'];
+        $fields = ['first_name', 'last_name', 'username', 'email', 'birthday', 'password', 'confirm-password', 'vehicle_number', 'phone_number'];
         $data = [];
         foreach ($fields as $field) {
             $data[$field] = filter_input(INPUT_POST, $field, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
@@ -43,6 +43,12 @@ try {
             $response['errors']['password'] = 'Password must be between 8 and 20 characters.';
         }
         if ($data['password'] !== $data['confirm-password']) $response['errors']['confirm-password'] = 'Passwords do not match.';
+        if (empty($data['vehicle_number']) || !preg_match('/^[A-Z]{3}-\d{4}$/', $data['vehicle_number'])) {
+            $response['errors']['vehicle_number'] = 'Vehicle number must be in the format ABC-1234.';
+        }
+        if (empty($data['phone_number']) || !preg_match('/^\d{11}$/', $data['phone_number'])) {
+            $response['errors']['phone_number'] = 'Phone number must be 11 digits.';
+        }
 
         // Check age
         $dob = new DateTime($data['birthday']);
@@ -64,19 +70,34 @@ try {
         $stmt->close();
 
         if (empty($response['errors'])) {
-            $hash = password_hash($data['password'], PASSWORD_DEFAULT);
-            $sql = "INSERT INTO users (first_name, last_name, username, email, birthday, password, user_type) VALUES (?, ?, ?, ?, ?, ?, 'customer')";
+            $con->begin_transaction();
 
-            $stmt = $con->prepare($sql);
-            $stmt->bind_param("ssssss", $data['first_name'], $data['last_name'], $data['username'], $data['email'], $data['birthday'], $hash);
+            try {
+                // Insert into users table
+                $hash = password_hash($data['password'], PASSWORD_DEFAULT);
+                $user_type = 'driver';
+                $created_at = date('Y-m-d H:i:s');
+                $sql = "INSERT INTO users (first_name, last_name, username, email, password, user_type, birthday, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                $stmt = $con->prepare($sql);
+                $stmt->bind_param("ssssssss", $data['first_name'], $data['last_name'], $data['username'], $data['email'], $hash, $user_type, $data['birthday'], $created_at);
+                $stmt->execute();
+                $user_id = $con->insert_id;
+                $stmt->close();
 
-            if ($stmt->execute()) {
+                // Insert into drivers table
+                $sql = "INSERT INTO drivers (user_id, vehicle_number, phone_number) VALUES (?, ?, ?)";
+                $stmt = $con->prepare($sql);
+                $stmt->bind_param("iss", $user_id, $data['vehicle_number'], $data['phone_number']);
+                $stmt->execute();
+                $stmt->close();
+
+                $con->commit();
                 $response['success'] = true;
                 $response['message'] = 'Registration successful. Redirecting to login page...';
-            } else {
-                $response['errors']['general'] = "Registration failed. Please try again. Error: " . $con->error;
+            } catch (Exception $e) {
+                $con->rollback();
+                $response['errors']['general'] = "Registration failed. Please try again. Error: " . $e->getMessage();
             }
-            $stmt->close();
         }
 
         sendJsonResponse($response);
@@ -96,7 +117,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Join BagoExpress - Sign Up</title>
+    <title>BagoExpress Driver Registration</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
     <style>
@@ -192,8 +213,8 @@ try {
                 <i class="bi bi-arrow-left-circle"></i>
             </a>
             <div class="registration-header">
-                <h2>Join BagoExpress</h2>
-                <p>Create your account and start your journey with us!</p>
+                <h2>Join BagoExpress as a Driver</h2>
+                <p>Start your journey with us today!</p>
             </div>
             <div class="registration-form">
                 <form id="registration-form" method="POST">
@@ -238,9 +259,17 @@ try {
                         <label for="confirm-password">Confirm Password</label>
                         <span class="error-message" id="confirm-password-error"></span>
                     </div>
-                    <button type="submit" class="btn btn-primary w-100 mt-3">Register</button>
-                    <a href="merchant-register.php" class="btn btn-outline-primary w-100 mt-3">Register As Merchant</a>
-                    <a href="driver-register.php" class="btn btn-outline-primary w-100 mt-3">Register As Driver</a>
+                    <div class="mb-3 form-floating">
+                        <input type="text" class="form-control" id="vehicle_number" name="vehicle_number" placeholder="Vehicle Number (e.g., POB-1234)" required pattern="[A-Z]{3}-\d{4}">
+                        <label for="vehicle_number">Vehicle Number</label>
+                        <span class="error-message" id="vehicle_number-error"></span>
+                    </div>
+                    <div class="mb-3 form-floating">
+                        <input type="tel" class="form-control" id="phone_number" name="phone_number" placeholder="Phone Number" required pattern="\d{11}">
+                        <label for="phone_number">Phone Number</label>
+                        <span class="error-message" id="phone_number-error"></span>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 mt-3">Register as Driver</button>
                 </form>
             </div>
         </div>
@@ -256,7 +285,7 @@ try {
                 $('.error-message').text('');
 
                 $.ajax({
-                    url: 'register.php',
+                    url: 'driver-register.php',
                     type: 'POST',
                     data: $(this).serialize(),
                     dataType: 'json',
@@ -304,6 +333,32 @@ try {
                         });
                     }
                 });
+            });
+
+            $('#vehicle_number').on('input', function() {
+                var input = $(this);
+                var re = /^[A-Z]{3}-\d{4}$/;
+                var is_valid = re.test(input.val());
+                if(is_valid) {
+                    input.removeClass("is-invalid").addClass("is-valid");
+                    $('#vehicle_number-error').text('');
+                } else {
+                    input.removeClass("is-valid").addClass("is-invalid");
+                    $('#vehicle_number-error').text('Vehicle number must be in the format ABC-1234.');
+                }
+            });
+
+            $('#phone_number').on('input', function() {
+                var input = $(this);
+                var re = /^\d{11}$/;
+                var is_valid = re.test(input.val());
+                if(is_valid) {
+                    input.removeClass("is-invalid").addClass("is-valid");
+                    $('#phone_number-error').text('');
+                } else {
+                    input.removeClass("is-valid").addClass("is-invalid");
+                    $('#phone_number-error').text('Phone number must be 11 digits.');
+                }
             });
         });
     </script>

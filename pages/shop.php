@@ -3,10 +3,74 @@ include_once("../connection/dbcon.php");
 session_start();
 
 if (!isset($_SESSION['username'])) {
-    header("Location: ../index.php"); // Redirect to login or home page if not logged in
+    header("Location: ../index.php");
     exit;
 }
+
+// Function to reset filters
+function resetFilters()
+{
+    return [
+        'price_range' => 'all',
+        'rating' => 'all',
+        'sort' => 'default'
+    ];
+}
+
+// Check if the clear button was pressed
+if (isset($_GET['clear'])) {
+    $defaults = resetFilters();
+    $price_range = $defaults['price_range'];
+    $rating = $defaults['rating'];
+    $sort = $defaults['sort'];
+} else {
+    // Initialize filter variables with GET parameters or default values
+    $price_range = isset($_GET['price_range']) ? $_GET['price_range'] : 'all';
+    $rating = isset($_GET['rating']) ? $_GET['rating'] : 'all';
+    $sort = isset($_GET['sort']) ? $_GET['sort'] : 'default';
+}
+
+// Function to get filtered results
+function getFilteredResults($con, $price_range, $rating, $sort)
+{
+    $query = "SELECT s.shop_id, s.shop_name, s.rating, s.logo, u.profile_picture,
+                     p.product_id, p.product_name, p.price, p.image_path
+              FROM shops s
+              JOIN users u ON s.owner_id = u.user_id
+              LEFT JOIN products p ON s.shop_id = p.shop_id
+              WHERE 1=1";
+
+    if ($price_range != 'all') {
+        list($min, $max) = explode('-', $price_range);
+        $query .= " AND p.price BETWEEN $min AND $max";
+    }
+
+    if ($rating != 'all') {
+        $query .= " AND s.rating >= $rating";
+    }
+
+    switch ($sort) {
+        case 'price_asc':
+            $query .= " ORDER BY p.price ASC";
+            break;
+        case 'price_desc':
+            $query .= " ORDER BY p.price DESC";
+            break;
+        case 'rating_desc':
+            $query .= " ORDER BY s.rating DESC";
+            break;
+        default:
+            $query .= " ORDER BY s.rating DESC"; // Default sorting
+    }
+
+    $result = mysqli_query($con, $query);
+    return $result;
+}
+
+// Get filtered results
+$filtered_results = getFilteredResults($con, $price_range, $rating, $sort);
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -21,11 +85,8 @@ if (!isset($_SESSION['username'])) {
     <!-- Font Awesome link -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="../css/style_sho.css">
-</head>
-
-<body>
     <style>
-        @import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+        @import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap");
 
         * {
             margin: 0;
@@ -45,6 +106,8 @@ if (!isset($_SESSION['username'])) {
         .header {
             width: 100%;
             margin: 0;
+            position: fixed;
+            z-index: 1000;
         }
 
         .profile-btn {
@@ -67,16 +130,113 @@ if (!isset($_SESSION['username'])) {
 
         .shop-container {
             display: grid;
-            grid-template-columns: 1fr 3fr;
-            padding: 0px 50px;
-            /* Allows the content to wrap on smaller screens */
+            grid-template-columns: 1fr 300px;
+            gap: 30px;
+            padding: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+            background-color: #f8f9fa;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 30px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
         }
 
         .sidebar {
-            width: 250px;
             padding: 20px;
-            background-color: #f9f9f9;
-            border-right: 1px solid #ddd;
+            background-color: #ffffff;
+            border-right: 1px solid #e9ecef;
+        }
+
+        .product-content {
+            padding: 20px;
+        }
+
+        .checkout-sidebar {
+            margin-top: 50px;
+            position: fixed;
+            right: 0;
+            top: 0;
+            height: 100vh;
+            width: 300px;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            z-index: 10;
+        }
+
+        .checkout-sidebar h3 {
+            margin-bottom: 20px;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .cart-item p {
+            margin: 0;
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+        }
+
+        .quantity-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            margin: 0 5px;
+        }
+
+        .quantity-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .delete-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        .delete-btn:hover {
+            background-color: #c82333;
+        }
+
+        .cart-total {
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .checkout-btn {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .checkout-btn:hover {
+            background-color: #0056b3;
         }
 
         .top-sidebar {
@@ -142,129 +302,176 @@ if (!isset($_SESSION['username'])) {
             outline: #ff5e14;
         }
 
-        .main-content {
-            padding: 20px;
-        }
-
         .search-bar {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
         }
 
         .search-bar input[type="text"] {
             width: 100%;
-            padding: 10px;
+            padding: 12px 20px;
             font-size: 1rem;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+            border: 1px solid #ced4da;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .search-bar input[type="text"]:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
         }
 
         .search-bar input[type="text"]::placeholder {
             font-size: 0.8rem;
         }
 
+        .listing-section h3 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
 
         .restaurant-listing,
         .product-listing {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
         }
 
         .restaurant-listing {
-            margin-bottom: 50px;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        }
+
+        .product-listing {
+            display: flex;
+            overflow-x: auto;
+            gap: 20px;
+            padding: 10px;
+        }
+
+        .restaurant-item,
+        .product-item {
+            background-color: #ffffff;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+
+        .restaurant-item:hover,
+        .product-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         }
 
         .restaurant-item {
-            width: 200px;
-            height: 80px;
-            border-radius: 2px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            margin-top: 20px;
-            text-decoration: none;
-            color: inherit;
-            transition: transform 0.2s ease-in-out;
-        }
-
-        .restaurant-item:hover {
-            transform: scale(1.05);
+            display: flex;
+            flex-direction: column;
+            height: 200px;
         }
 
         .restaurant-item-left {
-            display: grid;
-            place-items: center;
-            background-color: #ececec;
-            border-radius: 10px;
-            min-width: 100px;
-
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f8f9fa;
+            padding: 20px;
         }
 
         .restaurant-item-left img {
-            width: 70px;
-            height: 70px;
+            max-width: 100%;
+            max-height: 100px;
+            object-fit: contain;
         }
 
         .restaurant-item-right {
-            text-align: left;
             padding: 15px;
+            text-align: center;
         }
-
-        .restaurant-item-right h4 {
-            font-size: 18px;
-            font-weight: 00;
-
-        }
-
-        .restaurant-item-right p {
-            font-size: 14px;
-        }
-
 
         .product-item {
-            background-color: #fff;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            flex: 0 0 auto;
+            width: 150px;
+            /* Adjust the width as needed */
+            height: 200px;
+            /* Adjust the height as needed */
+            background-color: #ffffff;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-
-        .product-item h4 {
-            margin-bottom: 10px;
-            font-size: 1.1rem;
-        }
-
-        .card img {
-            width: 100px;
+        .product-item img {
+            width: 100%;
             height: 100px;
+            /* Adjust the height as needed */
+            object-fit: cover;
         }
 
-        @media (max-width: 768px) {
+        .product-item-info {
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .product-item h4,
+        .restaurant-item h4 {
+            font-size: 1rem;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .product-item p,
+        .restaurant-item p {
+            font-size: 0.8rem;
+            color: #666;
+            margin: 2px 0;
+        }
+
+        @media (max-width: 1200px) {
             .shop-container {
+                grid-template-columns: 1fr;
+            }
+
+            .main-content {
                 grid-template-columns: 1fr;
             }
 
             .sidebar {
                 position: fixed;
+                left: -250px;
                 top: 0;
-                left: -100%;
                 height: 100vh;
-                width: 80%;
-                max-width: 300px;
                 z-index: 1000;
                 transition: left 0.3s ease-in-out;
-                overflow-y: auto;
             }
 
             .sidebar.active {
                 left: 0;
             }
 
-            .main-content {
-                width: 100%;
-                padding: 10px;
+            .checkout-sidebar {
+                position: fixed;
+                right: -300px;
+                top: 0;
+                height: 100vh;
+                z-index: 1000;
+                transition: right 0.3s ease-in-out;
             }
+
+            .checkout-sidebar.active {
+                right: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
 
             .restaurant-listing,
             .product-listing {
@@ -283,6 +490,23 @@ if (!isset($_SESSION['username'])) {
                 width: 100%;
                 margin-bottom: 10px;
             }
+
+            .product-listing {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+
+            .product-item img {
+                width: 80px;
+                height: 80px;
+            }
+
+            .product-item h4 {
+                font-size: 0.8rem;
+            }
+
+            .product-item p {
+                font-size: 0.7rem;
+            }
         }
 
         /* Footer css   */
@@ -294,6 +518,7 @@ if (!isset($_SESSION['username'])) {
         .footer-section {
             background: #151414;
             position: relative;
+            z-index: 11;
         }
 
         .footer-cta {
@@ -455,14 +680,16 @@ if (!isset($_SESSION['username'])) {
             padding: 25px 0;
         }
 
-        .copyright-text p {
-            margin: 0;
-            font-size: 12px;
-            color: #878787;
-        }
+        .copyright-text {
+            p {
+                margin: 0;
+                font-size: 12px;
+                color: #878787;
+            }
 
-        .copyright-text p a {
-            color: #ff5e14;
+            p a {
+                color: #ff5e14;
+            }
         }
 
         .footer-menu li {
@@ -478,7 +705,131 @@ if (!isset($_SESSION['username'])) {
             font-size: 12px;
             color: #878787;
         }
+
+        .clear-btn {
+            background-color: #f8f9fa;
+            border: 1px solid #ced4da;
+            color: #495057;
+            padding: 5px 10px;
+            font-size: 0.9rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .clear-btn:hover {
+            background-color: #e9ecef;
+            border-color: #adb5bd;
+        }
+
+        .apply-btn {
+            background-color: #007bff;
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            font-size: 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .apply-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .restaurant-listing {
+            display: flex;
+            overflow-x: auto;
+            gap: 20px;
+            padding: 10px;
+        }
+
+        .restaurant-item {
+            flex: 0 0 auto;
+            width: 150px;
+            /* Adjust the width as needed */
+            height: 200px;
+            /* Adjust the height as needed */
+            background-color: #ffffff;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .restaurant-item-left {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f8f9fa;
+            padding: 10px;
+            /* Adjust the padding as needed */
+        }
+
+        .restaurant-item-left img {
+            max-width: 100%;
+            max-height: 80px;
+            /* Adjust the height as needed */
+            object-fit: contain;
+        }
+
+        .restaurant-item-right {
+            padding: 10px;
+            text-align: center;
+        }
+
+        .restaurant-item h4 {
+            font-size: 0.9rem;
+            /* Adjust the font size as needed */
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .restaurant-item p {
+            font-size: 0.8rem;
+            /* Adjust the font size as needed */
+            color: #666;
+            margin: 2px 0;
+        }
+
+        .restaurant-listing-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .scroll-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            z-index: 10;
+        }
+
+        .scroll-button:hover {
+            background-color: #0056b3;
+        }
+
+        .scroll-button.prev {
+            left: 10px;
+        }
+
+        .scroll-button.next {
+            right: 10px;
+        }
     </style>
+</head>
+
+<body>
     <div class="header">
         <header class="bg-dark text-white">
             <nav class="navbar navbar-expand-lg navbar-dark container">
@@ -512,218 +863,138 @@ if (!isset($_SESSION['username'])) {
         </header>
     </div>
 
-
     <div class="shop-container">
-        <button class="filter-btn d-md-none">Filter</button>
-        <div class="sidebar">
-            <div class="top-sidebar">
-                <h3>Shop</h3>
-                <i class="fa-solid fa-xmark d-md-none"></i>
-            </div>
-            <div class="top-sidebar">
-                <h4>Categories</h4>
-                <button class="clear-btn">Clear all</button>
-            </div>
-            <div class="filter-section">
-                <h5>Price</h5>
-                <div class="filter-options">
-                    <label><input type="checkbox"> ₱0 - ₱50.00</label><br>
-                    <label><input type="checkbox"> ₱50.00 - ₱100.00</label><br>
-                    <label><input type="checkbox"> ₱100.00 - ₱500.00</label><br>
-                    <label><input type="checkbox"> ₱500.00 - ₱1000.00</label><br>
-                    <label><input type="checkbox"> ₱1000.00 - Above</label><br>
+        <div class="main-content">
+            <button class="filter-btn d-md-none">Filter</button>
+            <div class="sidebar">
+                <div class="top-sidebar">
+                    <h3>Shop</h3>
+                    <i class="fa-solid fa-xmark d-md-none"></i>
                 </div>
+                <form action="shop.php" method="GET">
+                    <div class="top-sidebar">
+                        <h4>Categories</h4>
+                        <button type="submit" name="clear" value="1" class="clear-btn">Clear all</button>
+                    </div>
+                    <div class="filter-section">
+                        <h5>Price</h5>
+                        <div class="filter-options">
+                            <label><input type="radio" name="price_range" value="all" <?php echo $price_range == 'all' ? 'checked' : ''; ?>> All</label><br>
+                            <label><input type="radio" name="price_range" value="0-50" <?php echo $price_range == '0-50' ? 'checked' : ''; ?>> ₱0 - ₱50.00</label><br>
+                            <label><input type="radio" name="price_range" value="50-100" <?php echo $price_range == '50-100' ? 'checked' : ''; ?>> ₱50.00 - ₱100.00</label><br>
+                            <label><input type="radio" name="price_range" value="100-500" <?php echo $price_range == '100-500' ? 'checked' : ''; ?>> ₱100.00 - ₱500.00</label><br>
+                            <label><input type="radio" name="price_range" value="500-1000" <?php echo $price_range == '500-1000' ? 'checked' : ''; ?>> ₱500.00 - ₱1000.00</label><br>
+                            <label><input type="radio" name="price_range" value="1000-999999" <?php echo $price_range == '1000-999999' ? 'checked' : ''; ?>> ₱1000.00 - Above</label><br>
+                        </div>
+                    </div>
+
+                    <div class="filter-section">
+                        <h5>Rating</h5>
+                        <div class="filter-options">
+                            <label><input type="radio" name="rating" value="all" <?php echo $rating == 'all' ? 'checked' : ''; ?>> All</label><br>
+                            <label><input type="radio" name="rating" value="5" <?php echo $rating == '5' ? 'checked' : ''; ?>> 5 Stars Only</label><br>
+                            <label><input type="radio" name="rating" value="4" <?php echo $rating == '4' ? 'checked' : ''; ?>> 4 Stars & Above</label><br>
+                            <label><input type="radio" name="rating" value="3" <?php echo $rating == '3' ? 'checked' : ''; ?>> 3 Stars & Above</label><br>
+                            <label><input type="radio" name="rating" value="2" <?php echo $rating == '2' ? 'checked' : ''; ?>> 2 Stars & Above</label><br>
+                            <label><input type="radio" name="rating" value="1" <?php echo $rating == '1' ? 'checked' : ''; ?>> 1 Star & Above</label><br>
+                        </div>
+                    </div>
+
+                    <div class="filter-section">
+                        <h5>Sort By</h5>
+                        <div class="filter-options">
+                            <select name="sort">
+                                <option value="default" <?php echo $sort == 'default' ? 'selected' : ''; ?>>Default</option>
+                                <option value="price_asc" <?php echo $sort == 'price_asc' ? 'selected' : ''; ?>>Price: Low to High</option>
+                                <option value="price_desc" <?php echo $sort == 'price_desc' ? 'selected' : ''; ?>>Price: High to Low</option>
+                                <option value="rating_desc" <?php echo $sort == 'rating_desc' ? 'selected' : ''; ?>>Highest Rated</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="apply-btn">Apply Filters</button>
+                </form>
             </div>
 
-            <div class="filter-section">
-                <h5>Rating</h5>
-                <div class="filter-options">
-                    <label><input type="radio" name="rating"> All</label><br>
-                    <label><input type="radio" name="rating"> 5 Stars Only</label><br>
-                    <label><input type="radio" name="rating"> 4 Stars & Above</label><br>
-                    <label><input type="radio" name="rating"> 3 Stars & Above</label><br>
-                    <label><input type="radio" name="rating"> 2 Stars & Above</label><br>
-                    <label><input type="radio" name="rating"> 1 Star & Below</label><br>
+            <div class="product-content">
+                <div class="search-bar">
+                    <input type="text" placeholder="Search restaurants or products...">
                 </div>
-            </div>
 
-            <div class="filter-section">
-                <h5>Filter Three</h5>
-                <div class="filter-options">
-                    <button class="btn-filter">All</button>
-                    <button class="btn-filter">Nearest</button>
-                    <button class="btn-filter">Farthest</button>
+                <div class="listing-section">
+                    <h3>Shops</h3>
+                    <div class="restaurant-listing-container">
+                        <button class="scroll-button prev" onclick="scrollLeft()">&#10094;</button>
+                        <div class="restaurant-listing">
+                            <?php
+                            $seen_shops = array();
+                            mysqli_data_seek($filtered_results, 0);
+                            while ($row = mysqli_fetch_assoc($filtered_results)) {
+                                if (!in_array($row['shop_id'], $seen_shops)) {
+                                    $seen_shops[] = $row['shop_id'];
+                                    $shop_id = $row['shop_id'];
+                                    $shop_name = htmlspecialchars($row['shop_name']);
+                                    $rating = number_format($row['rating'], 1);
+                                    $logo = !empty($row['logo']) ? htmlspecialchars($row['logo']) : (!empty($row['profile_picture']) ? htmlspecialchars($row['profile_picture']) : '../path/default_shop_logo.png');
+
+                                    echo '<a href="shop_details.php?id=' . $shop_id . '" class="restaurant-item">';
+                                    echo '<div class="restaurant-item-left">';
+                                    echo '<img src="../product_images/' . $logo . '" alt="' . $shop_name . ' logo">';
+                                    echo '</div>';
+                                    echo '<div class="restaurant-item-right">';
+                                    echo '<h4>' . $shop_name . '</h4>';
+                                    echo '<p>' . $rating . ' &#11088;</p>';
+                                    echo '</div>';
+                                    echo '</a>';
+                                }
+                            }
+                            ?>
+                        </div>
+                        <button class="scroll-button next" onclick="scrollRight()">&#10095;</button>
+                    </div>
+
+                    <h3>Products</h3>
+                    <div class="product-listing">
+                        <?php
+                        mysqli_data_seek($filtered_results, 0);
+                        while ($row = mysqli_fetch_assoc($filtered_results)) {
+                            if (isset($row['product_id'])) {
+                                $product_id = $row['product_id'];
+                                $product_name = htmlspecialchars($row['product_name']);
+                                $price = number_format($row['price'], 2);
+                                $image_path = !empty($row['image_path']) ? htmlspecialchars($row['image_path']) : '../image/default_product_image.png';
+                                $shop_name = htmlspecialchars($row['shop_name']);
+
+                                echo '<div class="product-item">';
+                                echo '<img src="' . $image_path . '" alt="' . $product_name . '">';
+                                echo '<button class="add-to-cart-btn" data-product-id="' . $product_id . '" data-product-name="' . $product_name . '" data-product-price="' . $price . '">+</button>';
+                                echo '<div class="product-item-info">';
+                                echo '<h4>' . $product_name . '</h4>';
+                                echo '<p>₱' . $price . '</p>';
+                                echo '<p>' . $row['rating'] . ' &#11088;</p>';
+                                echo '<p>Sold by: ' . $shop_name . '</p>';
+                                echo '</div>';
+                                echo '</div>';
+                            }
+                        }
+                        ?>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="main-content">
-            <div class="search-bar">
-                <input type="text" placeholder="Search restaurants or products...">
+        <div class="checkout-sidebar">
+            <h3>Your Cart</h3>
+            <div id="cart-items">
+                <!-- Cart items will be dynamically added here -->
             </div>
-
-            <div class="listing-section">
-                <h3>Restaurants</h3>
-                <div class="restaurant-listing">
-                    <!-- Repeat this block for each restaurant -->
-                    <a href="jollibee.php" class="restaurant-item">
-                        <div class="restaurant-item-left">
-                            <img src="../image/shop-logo1.png" alt="Shop logo 1">
-                        </div>
-                        <div class="restaurant-item-right">
-                            <h4>Jollibee</h4>
-                            <p>5 &#11088; </p>
-                        </div>
-                    </a>
-                    <a href="jollibee.php" class="restaurant-item">
-                        <div class="restaurant-item-left">
-                            <img src="../image/shop-logo1.png" alt="Shop logo 2">
-                        </div>
-                        <div class="restaurant-item-right">
-                            <h4>McDonalds</h4>
-                            <p>4.5 &#11088; </p>
-                        </div>
-                    </a>
-                    <a href="jollibee.php" class="restaurant-item">
-                        <div class="restaurant-item-left">
-                            <img src="../image/shop-logo1.png" alt="Shop logo 2">
-                        </div>
-                        <div class="restaurant-item-right">
-                            <h4>McDonalds</h4>
-                            <p>4.5 &#11088; </p>
-                        </div>
-                    </a>
-                    
-                </div>
-
-                <h3>Products</h3>
-                <div class="row row-cols-2 row-cols-xl-4 row-cols-sm-2 g-4">
-                    <div class="col">
-                        <div class="card pt-3">
-                            <div class="d-flex justify-content-center">
-                                <img src="../image/box1.png" class="card-img-top" alt="...">
-                            </div>
-                            <div class="card-body">
-                                <h5 class="card-title">item 1</h5>
-                                <div class="d-flex justify-content-between">
-                                    <p class="card-text">₱100.00</p>
-                                    <span>5 &#11088;</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="card pt-3">
-                            <div class="d-flex justify-content-center">
-                                <img src="../image/box1.png" class="card-img-top" alt="...">
-                            </div>
-                            <div class="card-body">
-                                <h5 class="card-title">item 1</h5>
-                                <div class="d-flex justify-content-between">
-                                    <p class="card-text">₱100.00</p>
-                                    <span>5 &#11088;</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="card pt-3">
-                            <div class="d-flex justify-content-center">
-                                <img src="../image/box1.png" class="card-img-top" alt="...">
-                            </div>
-                            <div class="card-body">
-                                <h5 class="card-title">item 1</h5>
-                                <div class="d-flex justify-content-between">
-                                    <p class="card-text">₱100.00</p>
-                                    <span>5 &#11088;</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="card pt-3">
-                            <div class="d-flex justify-content-center">
-                                <img src="../image/box1.png" class="card-img-top" alt="...">
-                            </div>
-                            <div class="card-body">
-                                <h5 class="card-title">item 1</h5>
-                                <div class="d-flex justify-content-between">
-                                    <p class="card-text">₱100.00</p>
-                                    <span>5 &#11088;</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="card pt-3">
-                            <div class="d-flex justify-content-center">
-                                <img src="../image/box1.png" class="card-img-top" alt="...">
-                            </div>
-                            <div class="card-body">
-                                <h5 class="card-title">item 1</h5>
-                                <div class="d-flex justify-content-between">
-                                    <p class="card-text">₱100.00</p>
-                                    <span>5 &#11088;</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="card pt-3">
-                            <div class="d-flex justify-content-center">
-                                <img src="../image/box1.png" class="card-img-top" alt="...">
-                            </div>
-                            <div class="card-body">
-                                <h5 class="card-title">item 1</h5>
-                                <div class="d-flex justify-content-between">
-                                    <p class="card-text">₱100.00</p>
-                                    <span>5 &#11088;</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="card pt-3">
-                            <div class="d-flex justify-content-center">
-                                <img src="../image/box1.png" class="card-img-top" alt="...">
-                            </div>
-                            <div class="card-body">
-                                <h5 class="card-title">item 1</h5>
-                                <div class="d-flex justify-content-between">
-                                    <p class="card-text">₱100.00</p>
-                                    <span>5 &#11088;</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="card pt-3">
-                            <div class="d-flex justify-content-center">
-                                <img src="../image /box1.png" class="card-img-top" alt="...">
-                            </div>
-                            <div class="card-body">
-                                <h5 class="card-title">item 1</h5>
-                                <div class="d-flex justify-content-between">
-                                    <p class="card-text">₱100.00</p>
-                                    <span>5 &#11088;</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="cart-total">
+                <p>Total: ₱<span id="cart-total">0.00</span></p>
             </div>
+            <button class="checkout-btn">Proceed to Checkout</button>
         </div>
     </div>
 
-
-
-
-
     <hr>
-
-
-
-
 
     <footer class="footer-section">
         <div class="container">
@@ -846,21 +1117,154 @@ if (!isset($_SESSION['username'])) {
             document.body.style.overflow = '';
         });
 
-        // Close sidebar when clicking outside
-        document.addEventListener('click', function(event) {
-            if (!sidebar.contains(event.target) && !toggleButton.contains(event.target)) {
-                sidebar.classList.remove('active');
-                document.body.style.overflow = '';
+        // Function to add product to cart
+        function addToCart(productId, productName, productPrice) {
+            const cartItems = document.getElementById('cart-items');
+            const cartTotal = document.getElementById('cart-total');
+            let existingItem = cartItems.querySelector(`[data-product-id="${productId}"]`);
+
+            if (existingItem) {
+                // Update quantity if item already exists
+                const quantitySpan = existingItem.querySelector('.quantity');
+                let quantity = parseInt(quantitySpan.textContent);
+                quantity += 1;
+                quantitySpan.textContent = quantity;
+
+                // Update total
+                const currentTotal = parseFloat(cartTotal.textContent);
+                const newTotal = currentTotal + parseFloat(productPrice);
+                cartTotal.textContent = newTotal.toFixed(2);
+            } else {
+                // Add new item to cart
+                const newItem = document.createElement('div');
+                newItem.classList.add('cart-item');
+                newItem.setAttribute('data-product-id', productId);
+                newItem.innerHTML = `
+                <p>${productName} - ₱${productPrice}</p>
+                <div class="quantity-controls">
+                    <button class="quantity-btn" onclick="updateQuantity(this, -1, ${productPrice})">-</button>
+                    <span class="quantity">1</span>
+                    <button class="quantity-btn" onclick="updateQuantity(this, 1, ${productPrice})">+</button>
+                </div>
+                <button class="delete-btn" onclick="deleteItem(this, ${productPrice})">Delete</button>
+            `;
+                cartItems.appendChild(newItem);
+
+                // Update total
+                const currentTotal = parseFloat(cartTotal.textContent);
+                const newTotal = currentTotal + parseFloat(productPrice);
+                cartTotal.textContent = newTotal.toFixed(2);
             }
+        }
+
+        // Function to update quantity
+        function updateQuantity(button, change, productPrice) {
+            const quantitySpan = button.parentElement.querySelector('.quantity');
+            let quantity = parseInt(quantitySpan.textContent);
+            quantity += change;
+            if (quantity < 1) quantity = 1;
+            quantitySpan.textContent = quantity;
+
+            // Update total
+            const cartTotal = document.getElementById('cart-total');
+            const currentTotal = parseFloat(cartTotal.textContent);
+            const newTotal = currentTotal + (change * productPrice);
+            cartTotal.textContent = newTotal.toFixed(2);
+        }
+
+        // Function to delete item
+        function deleteItem(button, productPrice) {
+            const cartItem = button.parentElement;
+            const quantity = parseInt(cartItem.querySelector('.quantity').textContent);
+            const cartTotal = document.getElementById('cart-total');
+            const currentTotal = parseFloat(cartTotal.textContent);
+            const newTotal = currentTotal - (quantity * productPrice);
+            cartTotal.textContent = newTotal.toFixed(2);
+            cartItem.remove();
+        }
+
+        // Add event listeners to all add-to-cart buttons
+        document.querySelectorAll('.add-to-cart-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const productId = this.getAttribute('data-product-id');
+                const productName = this.getAttribute('data-product-name');
+                const productPrice = this.getAttribute('data-product-price');
+                addToCart(productId, productName, productPrice);
+            });
         });
 
-        // Adjust layout on window resize
-        window.addEventListener('resize', function() {
-            if (window.innerWidth > 768) {
-                sidebar.classList.remove('active');
-                document.body.style.overflow = '';
-            }
-        });
+        // Function to scroll left
+        function scrollLeft() {
+            const container = document.querySelector('.restaurant-listing');
+            container.scrollBy({
+                left: -200,
+                behavior: 'smooth'
+            });
+        }
+
+        // Function to scroll right
+        function scrollRight() {
+            const container = document.querySelector('.restaurant-listing');
+            container.scrollBy({
+                left: 200,
+                behavior: 'smooth'
+            });
+        }
+
+        // Function to handle checkout
+        function proceedToCheckout() {
+            const cartItems = document.querySelectorAll('.cart-item');
+            const orders = [];
+
+            cartItems.forEach(item => {
+                const productId = item.getAttribute('data-product-id');
+                const productName = item.querySelector('p').textContent.split(' - ')[0];
+                const productPrice = parseFloat(item.querySelector('p').textContent.split('₱')[1]);
+                const quantity = parseInt(item.querySelector('.quantity').textContent);
+
+                orders.push({
+                    productId,
+                    productName,
+                    productPrice,
+                    quantity
+                });
+            });
+
+            // Redirect to checkout.php with orders data
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = 'checkout.php';
+
+            const ordersInput = document.createElement('input');
+            ordersInput.type = 'hidden';
+            ordersInput.name = 'orders';
+            ordersInput.value = JSON.stringify(orders);
+
+            form.appendChild(ordersInput);
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+        // Add event listener to the checkout button
+        document.querySelector('.checkout-btn').addEventListener('click', proceedToCheckout);
+
+        // Function to scroll left
+        function scrollLeft() {
+            const container = document.querySelector('.restaurant-listing');
+            container.scrollBy({
+                left: -200,
+                behavior: 'smooth'
+            });
+        }
+
+        // Function to scroll right
+        function scrollRight() {
+            const container = document.querySelector('.restaurant-listing');
+            container.scrollBy({
+                left: 200,
+                behavior: 'smooth'
+            });
+        }
     </script>
 </body>
 
