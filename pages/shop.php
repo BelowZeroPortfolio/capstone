@@ -799,6 +799,38 @@ $filtered_results = getFilteredResults($con, $price_range, $rating, $sort);
             position: relative;
             display: flex;
             align-items: center;
+            width: 100%;
+            max-width: 100%;
+            overflow: hidden;
+        }
+
+        .restaurant-listing {
+            display: flex;
+            gap: 20px;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            padding: 10px;
+        }
+
+        .restaurant-item {
+            flex: 0 0 auto;
+            width: 200px;
+            /* Adjust width as needed */
+            background-color: #fff;
+            border-radius: 10px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .restaurant-item img {
+            max-width: 100%;
+            height: 100px;
+            object-fit: cover;
+        }
+
+        .restaurant-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         }
 
         .scroll-button {
@@ -813,6 +845,9 @@ $filtered_results = getFilteredResults($con, $price_range, $rating, $sort);
             cursor: pointer;
             transition: background-color 0.3s;
             z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .scroll-button:hover {
@@ -964,16 +999,16 @@ $filtered_results = getFilteredResults($con, $price_range, $rating, $sort);
                                 $image_path = !empty($row['image_path']) ? htmlspecialchars($row['image_path']) : '../image/default_product_image.png';
                                 $shop_name = htmlspecialchars($row['shop_name']);
 
-                                echo '<div class="product-item">';
-                                echo '<img src="' . $image_path . '" alt="' . $product_name . '">';
-                                echo '<button class="add-to-cart-btn" data-product-id="' . $product_id . '" data-product-name="' . $product_name . '" data-product-price="' . $price . '">+</button>';
-                                echo '<div class="product-item-info">';
-                                echo '<h4>' . $product_name . '</h4>';
-                                echo '<p>₱' . $price . '</p>';
-                                echo '<p>' . $row['rating'] . ' &#11088;</p>';
-                                echo '<p>Sold by: ' . $shop_name . '</p>';
-                                echo '</div>';
-                                echo '</div>';
+                                echo '<div class="product-item card">'; // Added 'card' class for styling
+                                echo '<img src="' . $image_path . '" alt="' . $product_name . '" class="card-img-top">'; // Added class for image
+                                echo '<div class="card-body">'; // Added card body for better structure
+                                echo '<h4 class="card-title">' . $product_name . '</h4>'; // Added class for title
+                                echo '<p class="card-text">₱' . $price . '</p>'; // Added class for price
+                                echo '<p class="card-text">' . $row['rating'] . ' &#11088;</p>'; // Added class for rating
+                                echo '<p class="card-text">Sold by: ' . $shop_name . '</p>'; // Added class for shop name
+                                echo '<button class="add-to-cart-btn btn btn-primary" data-product-id="' . $product_id . '" data-product-name="' . $product_name . '" data-product-price="' . $price . '">Add to Cart</button>'; // Styled button
+                                echo '</div>'; // Close card body
+                                echo '</div>'; // Close product item
                             }
                         }
                         ?>

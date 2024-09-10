@@ -51,7 +51,7 @@ $total_users_query = "SELECT COUNT(*) as total FROM user";
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Verdana, sans-serif;
         }
 
         .sidebar {
